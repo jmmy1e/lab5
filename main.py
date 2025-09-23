@@ -19,7 +19,7 @@ def write_file(contacts):
     # Temporarly write to a temp version of addresses.txt to prevent fucking everything up
     with open("temp_addresses.txt", "w+") as file:
         for contact in contacts:
-            file.write(contact.__repr__())
+            file.write(contact.__repr__() + "\n")
 
 def get_menu_choice():
     valid_input = ["1" , "2", "3" , "4", "5"]
@@ -38,8 +38,41 @@ def get_menu_choice():
 
 def modify_contact(cont):
     print("\n"+cont.__str__()+"\n")
-    user_input = input("Modify Menu:\n1. First name\n2. Last name\n3. Phone\n4. Address\n5. City\n6. Zip\n7. Save")
-
+    valid_inputs = ["1", "2", "3", "4", "5", "6", "7"]
+    while True:
+        user_input = input("Modify Menu:\n1. First name\n2. Last name\n3. Phone\n4. Address\n5. City\n6. Zip\n7. Save\n>")
+        if user_input in valid_inputs:
+            if user_input == "1":
+                new_name = input("Enter the new first name: ")
+                cont.fn = new_name
+                print(f"New First Name is: {cont.fn}")
+            elif user_input =="2":
+                new_name = input("Enter the new last name: ")
+                cont.ln = new_name
+                print(f"New last Name is: {cont.ln}")
+            elif user_input == "3":
+                new_phone = input("Enter the new phone number: ")
+                cont.ph = new_phone
+                print(f"New Number is: {cont.ph}")
+            elif user_input == "4":
+                new_address = input("Enter the new adress: ")
+                cont.addr = new_address
+                print(f"New Address is: {cont.addr}")
+            elif user_input == "5":
+                new_city = input("Enter the new city: ")
+                cont.city = new_city
+                print(f"New city is: {cont.city}")
+            elif user_input =="6":
+                new_zip = input("Enter the new zip code: ")
+                cont.zip = new_zip
+                print(f"New zip is: {cont.zip}")
+            elif  user_input =="7":
+                # Because we've been saving it actively we can just exit
+                break
+                
+        else:
+            print("Invalid Input: Please enter a number 1-7")
+            
 
 
 
@@ -53,7 +86,7 @@ def main():
         if user_input == "1":
                 index = 1
                 for contact in contacts:
-                    print(f"{str(index)}. {contact.__str__()}")
+                    print(f"\n {str(index)}. {contact.__str__()} \n")
                     index +=1
         # Add Contact
         # ! THERE IS NO PARSING VERIFICATION TO AUTHENTICATE PROPER INPUT OF CHARACTERS
@@ -71,8 +104,10 @@ def main():
                 address = input("Contacts Address: ")
                 city = input("Contacts City: ")
                 zip  = input("Contacts Zip: ")
+                print("\n")
                 new_contact = Contact(first_name, last_name, phone_number, address, city, zip)
                 contacts.append(new_contact)
+                contacts.sort(key= lambda x: x.ln)
                 
         # Search Contact
         elif user_input == "3":
@@ -117,17 +152,26 @@ def main():
             last = input("Enter the contacts last name: ")# full_name[1]
             #print(f"First is {first} last is {last}")
             current_contact: Contact
-            for contact in contacts:
-                if contact.fn == first and contact.ln == last:
-                    print("Contact found")
-                    modify_contact(contact)
+            found_value = False
+            for temp_contact in contacts:
+                if temp_contact.fn == first and temp_contact.ln == last:
+                    found_value = True
+                    current_contact = temp_contact
+                    modify_contact(current_contact)
+
 
 
                     break
-
-
           
-    write_file(contacts)
+            if found_value == False:
+                print("\nCouldn't find contact\n")
+        elif user_input == "5":
+                print("Saving File...")
+                write_file(contacts)
+                print("Ending Program")
+                break
+
+
 
 
 if __name__ == "__main__":
