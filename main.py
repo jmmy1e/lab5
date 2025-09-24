@@ -131,7 +131,6 @@ def main():
             for c in contacts:
                 if c.fn == first and c.ln == last:
                     found = True
-                    print("\n" + str(c) + "\n")
                     modify_contact(c)
                     contacts.sort()
                     break
