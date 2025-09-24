@@ -1,178 +1,149 @@
-from contact import Contact
+"""
+LAB #5
+    09/24/2025
+    Student 1: Jimmy Le
+    Student 2: Daniel McCray
 
+    Rolodex: Loads contacts from addresses.txt, lets the user display, add, search, and
+    modify entries, then saves and exits. Uses Contact for the data model and
+    check_input for simple menu validation.
+"""
+
+from contact import Contact
+import check_input
 
 def read_file():
-    # Assumme the path is constant
-    file = open("./addresses.txt").readlines()
-    contact_list = []
-    for line in file:
-        list_version = line.rstrip("\n").split(",")
-        contact = Contact(list_version[0], list_version[1], list_version[2],list_version[3],list_version[4],list_version[5])
-        contact_list.append(contact)
-    
-    contact_list.sort(key=lambda x: x.ln )
-    return contact_list
-
+    """Load contacts from 'addresses.txt' and return a list sorted by last, then first"""
+    contacts = []
+    with open("addresses.txt") as f:
+        for line in f:
+            parts = line.strip().split(",")
+            if len(parts) == 6:
+                contacts.append(Contact(parts[0], parts[1], parts[2],
+                                        parts[3], parts[4], parts[5]))
+    contacts.sort()  # uses Contact.__lt__ (last, then first)
+    return contacts
 
 
 def write_file(contacts):
-    # Temporarly write to a temp version of addresses.txt to prevent fucking everything up
-    with open("temp_addresses.txt", "w+") as file:
-        for contact in contacts:
-            file.write(contact.__repr__() + "\n")
+    """Save all contacts to 'addresses.txt'"""
+    with open("addresses.txt", "w") as f:
+        for c in contacts:
+            f.write(repr(c) + "\n")
+
+    # Uncomment to test writing without overwriting addresses.txt
+    #with open("temp_addresses.txt", "w") as f:
+    #    for c in contacts:
+    #        f.write(repr(c) + "\n")
 
 def get_menu_choice():
-    valid_input = ["1" , "2", "3" , "4", "5"]
-    while True:
-         
-        user_input = input("Rolodex Menu:\n1. Display Contacts\n2. Add Contact\n3. Search Contacts\n4. Modify Contact\n5. Save and Quit\n> ")
-        if user_input in valid_input:
-             break
-        else:
-            print("Invalid Input: Please enter a number 1-5")
-    return user_input
+    """Display main menu 1-5 and get user input"""
+    print("Rolodex Menu:")
+    print("1. Display Contacts")
+    print("2. Add Contact")
+    print("3. Search Contacts")
+    print("4. Modify Contact")
+    print("5. Save and Quit")
+    return check_input.get_int_range("> ", 1, 5)
 
-        
-        # Display Contacts
-        
 
 def modify_contact(cont):
-    print("\n"+cont.__str__()+"\n")
-    valid_inputs = ["1", "2", "3", "4", "5", "6", "7"]
-    while True:
-        user_input = input("Modify Menu:\n1. First name\n2. Last name\n3. Phone\n4. Address\n5. City\n6. Zip\n7. Save\n>")
-        if user_input in valid_inputs:
-            if user_input == "1":
-                new_name = input("Enter the new first name: ")
-                cont.fn = new_name
-                print(f"New First Name is: {cont.fn}")
-            elif user_input =="2":
-                new_name = input("Enter the new last name: ")
-                cont.ln = new_name
-                print(f"New last Name is: {cont.ln}")
-            elif user_input == "3":
-                new_phone = input("Enter the new phone number: ")
-                cont.ph = new_phone
-                print(f"New Number is: {cont.ph}")
-            elif user_input == "4":
-                new_address = input("Enter the new adress: ")
-                cont.addr = new_address
-                print(f"New Address is: {cont.addr}")
-            elif user_input == "5":
-                new_city = input("Enter the new city: ")
-                cont.city = new_city
-                print(f"New city is: {cont.city}")
-            elif user_input =="6":
-                new_zip = input("Enter the new zip code: ")
-                cont.zip = new_zip
-                print(f"New zip is: {cont.zip}")
-            elif  user_input =="7":
-                # Because we've been saving it actively we can just exit
-                break
-                
-        else:
-            print("Invalid Input: Please enter a number 1-7")
+    """Modify a contact’s fields until user hits Save (7)"""
+    print("\n" + str(cont) + "\n")
+    choice = 0
+    while choice != 7:
+        print("Modify Menu:")
+        print("1. First name")
+        print("2. Last name")
+        print("3. Phone")
+        print("4. Address")
+        print("5. City")
+        print("6. Zip")
+        print("7. Save")
+        choice = check_input.get_int_range("> ", 1, 7)
+
+        if choice == 1:
+            cont.fn = input("Enter new first name: ")
+        elif choice == 2:
+            cont.ln = input("Enter new last name: ")
+        elif choice == 3:
+            cont.ph = input("Enter new phone number: ")
+        elif choice == 4:
+            cont.addr = input("Enter new address: ")
+        elif choice == 5:
+            cont.city = input("Enter new city: ")
+        elif choice == 6:
+            cont.zip = input("Enter new zip code: ")
             
 
-
-
 def main():
+    """Run the Rolodex: load data, show menu loop, save, then exit."""
     contacts = read_file()
+
     while True:
-        user_input = get_menu_choice()
-        # ! Safe to assume its 1-5
+        choice = get_menu_choice()
 
-        # Display Contacts
-        if user_input == "1":
-                index = 1
-                for contact in contacts:
-                    print(f"\n {str(index)}. {contact.__str__()} \n")
-                    index +=1
-        # Add Contact
-        # ! THERE IS NO PARSING VERIFICATION TO AUTHENTICATE PROPER INPUT OF CHARACTERS
-        elif user_input == "2":
+        # 1) Display Contacts
+        if choice == 1:
+            print(f"Number of contacts: {len(contacts)}")
+            for idx, c in enumerate(contacts, start=1):
+                print(f"{idx}. {str(c)}\n")
 
-                print("New Contact")
-                first_name = input("Contacts First Name: ")
+        # 2) Add Contact (all strings)
+        elif choice == 2:
+            print("Enter new contact:")
+            first = input("First name: ")
+            last = input("Last name: ")
+            phone = input("Phone #: ")
+            addr = input("Address: ")
+            city = input("City: ")
+            zip_code = input("Zip: ")
+            contacts.append(Contact(first, last, phone, addr, city, zip_code))
+            contacts.sort()
+            print()
 
+        # 3) Search by last name or zip
+        elif choice == 3:
+            print("Search:")
+            print("1. Search by last name")
+            print("2. Search by zip")
+            s_choice = check_input.get_int_range("> ", 1, 2)
 
-                last_name = input("Contacts Last Name: ")
-
-
-                phone_number = input("Contacts Phone Number: ")
-
-                address = input("Contacts Address: ")
-                city = input("Contacts City: ")
-                zip  = input("Contacts Zip: ")
-                print("\n")
-                new_contact = Contact(first_name, last_name, phone_number, address, city, zip)
-                contacts.append(new_contact)
-                contacts.sort(key= lambda x: x.ln)
-                
-        # Search Contact
-        elif user_input == "3":
-            # Prompt user to search by last name OR zip
-            while True:
-                user_input = input("How would you like to search this contact? \n1. Last Name\n2. Zip Code\n> ")
-                if user_input == "1" or user_input == "2":
-                    break
-                else:
-                    print("Invalid Input: Please select 1 or 2")
-
-                # Conduct Last Name search
-            if user_input == "1":
-                last_name = input("Enter the contacts last name: ")
-                valid_contacts = []
-                for contact in contacts:
-                    if contact.ln == last_name:
-                        valid_contacts.append(contact)
-                if valid_contacts.__len__() > 0:
-                    print("Found Contact(s)\n")
-                    for contact in valid_contacts:
-                        print(contact.__str__() + "\n")
-                else:
-                    print(f"Couldn't find any contact with the last name \"{last_name}\"")
-            # Conduct Zip Code search
+            if s_choice == 1:
+                target = input("Enter last name: ")
+                matches = [c for c in contacts if c.ln == target]
             else:
-                zip = input("Enter the contacts zip code: ")
-                valid_contacts = []
-                for contact in contacts:
-                    if contact.zip == zip:
-                        
-                        valid_contacts.append(contact)
-                if valid_contacts.__len__() > 0:
-                    print("Found Contact(s)\n")
-                    for contact in valid_contacts:
-                        print(contact.__str__() + "\n")
-                else:
-                    print(f"Couldn't find any contact with the zip code \"{zip}\"")
-        elif user_input == "4":
-            #full_name = input("Please enter the contacts full name (ie. First name Last name): ").split(' ')
-            first = input("Enter the contacts first name: ") #full_name[0]
-            last = input("Enter the contacts last name: ")# full_name[1]
-            #print(f"First is {first} last is {last}")
-            current_contact: Contact
-            found_value = False
-            for temp_contact in contacts:
-                if temp_contact.fn == first and temp_contact.ln == last:
-                    found_value = True
-                    current_contact = temp_contact
-                    modify_contact(current_contact)
+                target = input("Enter zip code: ")
+                matches = [c for c in contacts if c.zip == target]
 
+            if matches:
+                for c in matches:
+                    print(str(c) + "\n")
+            else:
+                print(f'No matches found for "{target}".')
 
+        # 4) Modify a contact by first and last name
+        elif choice == 4:
+            first = input("Enter first name: ")
+            last = input("Enter last name: ")
 
+            found = False
+            for c in contacts:
+                if c.fn == first and c.ln == last:
+                    found = True
+                    print("\n" + str(c) + "\n")
+                    modify_contact(c)
+                    contacts.sort()
                     break
-          
-            if found_value == False:
+            if not found:
                 print("\nCouldn't find contact\n")
-        elif user_input == "5":
-                print("Saving File...")
-                write_file(contacts)
-                print("Ending Program")
-                break
 
-
-
+        # 5) Save and Quit
+        elif choice == 5:
+            print("Saving File...")
+            write_file(contacts)
+            print("Ending Program")
+            break
 
 if __name__ == "__main__":
     main()
